@@ -10,13 +10,43 @@ public class Hotel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
+
     private String name;
+
     private String city;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "hotel_roomTypes",
             joinColumns = @JoinColumn(name = "hotel_id"),
             inverseJoinColumns = @JoinColumn(name = "room_type_id"))
     private Set<RoomType> roomTypes = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seasonId")
+    private Season season;
+
+    public Hotel() {}
+
+    public Hotel(String name, String city) {
+        this.city = city;
+        this.name = name;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public Season getSeason() {
+        return season;
+    }
+
+    public void setSeason(Season season) {
+        this.season = season;
+    }
 
     public Set<RoomType> getRoomTypes() {
         return roomTypes;
@@ -38,7 +68,6 @@ public class Hotel {
         this.city = city;
     }
 
-
     public Long getId() {
         return Id;
     }
@@ -49,13 +78,5 @@ public class Hotel {
 
     public String getAddress() {
         return city;
-    }
-
-
-    public Hotel() {}
-
-    public Hotel(String name, String city) {
-        this.city = city;
-        this.name = name;
     }
 }

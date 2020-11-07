@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
@@ -33,6 +34,11 @@ public class ReservationController {
     HotelRepository hotelRepository;
     @Autowired
     JwtUtils jwtUtils;
+
+    @GetMapping("/get")
+    public ResponseEntity<?> get(@PathParam("Id") Long Id) {
+        return ResponseEntity.ok(reservationRepository.findById(Id).get());
+    }
 
     @PostMapping("/book")
     public ResponseEntity<?> book(@RequestHeader("Authorization") String authHeader, @RequestBody BookingRequest request) {

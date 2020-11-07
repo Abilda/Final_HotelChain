@@ -1,7 +1,9 @@
 package com.example.springAuthenticationJWT.Controllers;
 
-import com.example.springAuthenticationJWT.models.*;
-import com.example.springAuthenticationJWT.payload.response.MessageResponse;
+import com.example.springAuthenticationJWT.models.ERole;
+import com.example.springAuthenticationJWT.models.Reservation;
+import com.example.springAuthenticationJWT.models.Role;
+import com.example.springAuthenticationJWT.models.User;
 import com.example.springAuthenticationJWT.repository.HotelRepository;
 import com.example.springAuthenticationJWT.repository.ReservationRepository;
 import com.example.springAuthenticationJWT.repository.RoomRepository;
@@ -11,14 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.websocket.server.PathParam;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/hotel")
-public class HotelController {
+@RequestMapping("/api/clerkdesk")
+public class ClerkController {
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -30,24 +34,8 @@ public class HotelController {
     @Autowired
     JwtUtils jwtUtils;
 
-    @GetMapping
-    public List<Hotel> index() {
-        List<Hotel> allHotels = hotelRepository.findAll();
-        return allHotels;
-    }
-
-    @GetMapping("/about")
-    public ResponseEntity<?> about(@PathParam("Id") Long Id) {
-        if (!hotelRepository.existsById(Id))
-            return ResponseEntity.ok(new MessageResponse("Hotel with id " + Id + " does not exist"));
-        Optional<Hotel> hotel = hotelRepository.findById(Id);
-        Set<RoomType> roomTypesoftheHotel = hotel.get().getRoomTypes();
-        System.out.print(hotel.get().getName());
-        return ResponseEntity.ok(roomTypesoftheHotel);
-    }
-
-    @GetMapping("/getGuests")
-    public ResponseEntity<?> getGuests(@RequestHeader("authorization") String authHeader) {
+    @GetMapping("/getAllGuests")
+    public ResponseEntity<?> getAllGuests(@RequestHeader("authorization") String authHeader) {
         String jwt = authHeader.substring(7, authHeader.length());
         boolean isValidJWT = jwtUtils.validateJwtToken(jwt);
         Optional<User> user = userRepository.findByUsername(jwtUtils.getUserNameFromJwtToken(jwt));
@@ -60,21 +48,10 @@ public class HotelController {
         if (!isValidJWT || !isModerator) {
             return ResponseEntity.ok("You are not authorized to access Clerks area");
         }
-        List<Reservation> allReservations = reservationRepository.findAll();
-        List<Reservation> activeReservations = new ArrayList<>();
-        HashMap<String, List<Long>> guestReservations = new HashMap<>();
-//        guestReservations - username to active reservations Ids
-        Date current = new Date();
-        for (Reservation reservation : allReservations)
-            if (reservation.getCheckout().compareTo(current) > 0) {
-                if (!guestReservations.containsKey(reservation.getUser().getUsername()))
-                    guestReservations.put(reservation.getUser().getUsername(), new ArrayList<Long>());
-                guestReservations.get(reservation.getUser().getUsername()).add(reservation.getId());
-            }
-        return ResponseEntity.ok(guestReservations);
+        return ResponseEntity.ok(userRepository.findAll());
     }
 
-    @GetMapping("getActiveReservationsForUser")
+    @GetMapping("/getActiveReservationsForUser")
     public ResponseEntity<?> getReservations(@RequestHeader("authorization") String authHeader, @PathParam("Id") Long Id){
         String jwt = authHeader.substring(7, authHeader.length());
         boolean isValidJWT = jwtUtils.validateJwtToken(jwt);
@@ -91,11 +68,9 @@ public class HotelController {
         List<Reservation> allReservations = reservationRepository.findAll();
         List<Long> reservationsForUser = new ArrayList<>();
         Date current = new Date();
-        System.out.println("UserId - " + Id);
         for (Reservation reservation : allReservations)
             if (reservation.getCheckout().compareTo(current) > 0 && reservation.getUser().getId() == Id)
                 reservationsForUser.add(reservation.getId());
         return ResponseEntity.ok(reservationsForUser);
     }
-
 }
