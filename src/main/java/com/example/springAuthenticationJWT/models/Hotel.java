@@ -21,9 +21,8 @@ public class Hotel {
             inverseJoinColumns = @JoinColumn(name = "room_type_id"))
     private Set<RoomType> roomTypes = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seasonId")
-    private Season season;
+    @OneToMany(mappedBy = "hotel")
+    private Set<Employee> employees;
 
     public Hotel() {}
 
@@ -38,14 +37,6 @@ public class Hotel {
 
     public void setCity(String city) {
         this.city = city;
-    }
-
-    public Season getSeason() {
-        return season;
-    }
-
-    public void setSeason(Season season) {
-        this.season = season;
     }
 
     public Set<RoomType> getRoomTypes() {

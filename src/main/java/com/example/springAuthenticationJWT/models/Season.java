@@ -1,19 +1,19 @@
 package com.example.springAuthenticationJWT.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name="seasons")
 public class Season {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
     private double seasonalRate;
@@ -22,8 +22,12 @@ public class Season {
 
     private Date endDate;
 
-    @OneToMany(mappedBy = "season")
-    private Set<Hotel> hotels;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(	name = "hotel_seasons",
+            joinColumns = @JoinColumn(name = "season_id"),
+            inverseJoinColumns = @JoinColumn(name = "hotel_id"))
+    private Set<Hotel> hotels = new HashSet<>();
 
     public Season() {}
 
@@ -71,5 +75,13 @@ public class Season {
 
     public void setHotels(Set<Hotel> hotels) {
         this.hotels = hotels;
+    }
+
+    public void addHotel(Hotel hotel) {
+        hotels.add(hotel);
+    }
+
+    public void clearHotels() {
+        hotels.clear();
     }
 }

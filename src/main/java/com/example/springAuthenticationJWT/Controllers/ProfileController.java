@@ -1,5 +1,6 @@
 package com.example.springAuthenticationJWT.Controllers;
 
+import com.example.springAuthenticationJWT.models.ERole;
 import com.example.springAuthenticationJWT.models.Reservation;
 import com.example.springAuthenticationJWT.models.User;
 import com.example.springAuthenticationJWT.payload.response.MessageResponse;
@@ -63,5 +64,10 @@ public class ProfileController {
         jsonAns.put("past reservations: ", pastReservations);
         jsonAns.put("upcoming bookings: ", bookings);
         return ResponseEntity.ok(jsonAns);
+    }
+
+    @GetMapping("/corsTest")
+    public void Test() {
+        System.out.println("Testing");
     }
 }

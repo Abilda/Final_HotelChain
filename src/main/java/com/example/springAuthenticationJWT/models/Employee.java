@@ -20,6 +20,18 @@ public class Employee {
             inverseJoinColumns = @JoinColumn(name = "schedule_id"))
     private Set<Schedule> schedules = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hotelId")
+    private Hotel hotel;
+
+    public Hotel getHotel() {
+        return hotel;
+    }
+
+    public void setHotel(Hotel hotel) {
+        this.hotel = hotel;
+    }
+
     public Employee() { }
 
     public Employee(String name, String phoneNumber, String address, String occupation) {

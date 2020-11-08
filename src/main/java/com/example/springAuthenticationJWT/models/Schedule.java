@@ -1,8 +1,11 @@
 package com.example.springAuthenticationJWT.models;
 
+import org.apache.tomcat.jni.Local;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Entity
@@ -11,8 +14,24 @@ public class Schedule {
     @Id
     private Long Id;
     private String dayOfTheWeek;
-    private Date startDate;
-    private Date endDate;
+    private String startTime;
+    private String endTime;
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
 
     public Long getId() {
         return Id;
@@ -30,19 +49,5 @@ public class Schedule {
         this.dayOfTheWeek = dayOfTheWeek;
     }
 
-    public Date getStartDate() {
-        return startDate;
-    }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
 }
