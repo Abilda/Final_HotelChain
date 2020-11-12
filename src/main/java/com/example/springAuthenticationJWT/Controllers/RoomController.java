@@ -49,13 +49,7 @@ public class RoomController {
         return ResponseEntity.ok(roomTypeRooms);
     }
 
-//    @PostMapping("/test")
-//    public void test(@RequestHeader("Authorization") String authHeader) {
-//        String jwt = authHeader.substring(7, authHeader.length());
-//        Optional<User> user = userRepository.findByUsername(jwtUtils.getUserNameFromJwtToken(jwt));
-//        System.out.println(user.get().getEmail() + " " + user.get().getUsername());
-//    }
-
+//why do i need you?
     @PostMapping("/book")
     public ResponseEntity<?> book(@RequestHeader("Authorization") String authHeader,
                                   @RequestBody RequestHelper request) {
@@ -67,20 +61,14 @@ public class RoomController {
         Optional<Hotel> hotel = hotelRepository.findById(request.getHotelId());
         Optional<Room> room = roomRepository.findById(request.getRoomId());
         Reservation reservation = new Reservation(request.getFrom(), request.getTo());
-//        System.out.print(reservation.getCheckout() +  " " + request.getTo());
         reservation.setHotel(hotel.get());
-        reservation.setRoom(room.get());
+        reservation.setRoomType(room.get().getRoomtype());
         reservation.setUser(user.get());
         reservationRepository.save(reservation);
 
         return ResponseEntity.ok(new MessageResponse("successfully booked"));
     }
 
-//    @GetMapping("/filter")
-//    public ResponseEntity<?> filter(Date from, Date to) {
-//
-//        return ResponseEntity.ok(new MessageResponse("going to implement"));
-//    }
 
 }
 

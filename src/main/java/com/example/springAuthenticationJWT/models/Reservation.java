@@ -8,12 +8,26 @@ import java.util.Date;
 @Entity
 @Table(name = "reservations")
 public class Reservation {
-    public Reservation() {};
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long Id;
     private Date checkin;
     private Date checkout;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="guestId")
+    private User user;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="hotelId")
+    private Hotel hotel;
+
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="roomTypeId")
+    private RoomType roomType;
+
+    public Reservation() {};
 
     public Reservation(Date checkin, Date checkout) {
         this.checkin = checkin;
@@ -60,24 +74,11 @@ public class Reservation {
         this.hotel = hotel;
     }
 
-    public Room getRoom() {
-        return room;
+    public RoomType getRoomType() {
+        return roomType;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="guestId")
-    private User user;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="hotelId")
-    private Hotel hotel;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="roomId")
-    private Room room;
-
 }

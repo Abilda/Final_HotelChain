@@ -46,56 +46,56 @@ public class HotelController {
         return ResponseEntity.ok(roomTypesoftheHotel);
     }
 
-    @GetMapping("/getGuests")
-    public ResponseEntity<?> getGuests(@RequestHeader("authorization") String authHeader) {
-        String jwt = authHeader.substring(7, authHeader.length());
-        boolean isValidJWT = jwtUtils.validateJwtToken(jwt);
-        Optional<User> user = userRepository.findByUsername(jwtUtils.getUserNameFromJwtToken(jwt));
-        boolean isModerator = false;
-        for (Role role : user.get().getRoles())
-            if (role.getName() == ERole.ROLE_MODERATOR) {
-                isModerator = true;
-                break;
-            }
-        if (!isValidJWT || !isModerator) {
-            return ResponseEntity.ok("You are not authorized to access Clerks area");
-        }
-        List<Reservation> allReservations = reservationRepository.findAll();
-        List<Reservation> activeReservations = new ArrayList<>();
-        HashMap<String, List<Long>> guestReservations = new HashMap<>();
-//        guestReservations - username to active reservations Ids
-        Date current = new Date();
-        for (Reservation reservation : allReservations)
-            if (reservation.getCheckout().compareTo(current) > 0) {
-                if (!guestReservations.containsKey(reservation.getUser().getUsername()))
-                    guestReservations.put(reservation.getUser().getUsername(), new ArrayList<Long>());
-                guestReservations.get(reservation.getUser().getUsername()).add(reservation.getId());
-            }
-        return ResponseEntity.ok(guestReservations);
-    }
-
-    @GetMapping("getActiveReservationsForUser")
-    public ResponseEntity<?> getReservations(@RequestHeader("authorization") String authHeader, @PathParam("Id") Long Id){
-        String jwt = authHeader.substring(7, authHeader.length());
-        boolean isValidJWT = jwtUtils.validateJwtToken(jwt);
-        Optional<User> user = userRepository.findByUsername(jwtUtils.getUserNameFromJwtToken(jwt));
-        boolean isModerator = false;
-        for (Role role : user.get().getRoles())
-            if (role.getName() == ERole.ROLE_MODERATOR) {
-                isModerator = true;
-                break;
-            }
-        if (!isValidJWT || !isModerator) {
-            return ResponseEntity.ok("You are not authorized to access Clerks area");
-        }
-        List<Reservation> allReservations = reservationRepository.findAll();
-        List<Long> reservationsForUser = new ArrayList<>();
-        Date current = new Date();
-        System.out.println("UserId - " + Id);
-        for (Reservation reservation : allReservations)
-            if (reservation.getCheckout().compareTo(current) > 0 && reservation.getUser().getId() == Id)
-                reservationsForUser.add(reservation.getId());
-        return ResponseEntity.ok(reservationsForUser);
-    }
+//    @GetMapping("/getGuests")
+//    public ResponseEntity<?> getGuests(@RequestHeader("authorization") String authHeader) {
+//        String jwt = authHeader.substring(7, authHeader.length());
+//        boolean isValidJWT = jwtUtils.validateJwtToken(jwt);
+//        Optional<User> user = userRepository.findByUsername(jwtUtils.getUserNameFromJwtToken(jwt));
+//        boolean isModerator = false;
+//        for (Role role : user.get().getRoles())
+//            if (role.getName() == ERole.ROLE_MODERATOR) {
+//                isModerator = true;
+//                break;
+//            }
+//        if (!isValidJWT || !isModerator) {
+//            return ResponseEntity.ok("You are not authorized to access Clerks area");
+//        }
+//        List<Reservation> allReservations = reservationRepository.findAll();
+//        List<Reservation> activeReservations = new ArrayList<>();
+//        HashMap<String, List<Long>> guestReservations = new HashMap<>();
+////        guestReservations - username to active reservations Ids
+//        Date current = new Date();
+//        for (Reservation reservation : allReservations)
+//            if (reservation.getCheckout().compareTo(current) > 0) {
+//                if (!guestReservations.containsKey(reservation.getUser().getUsername()))
+//                    guestReservations.put(reservation.getUser().getUsername(), new ArrayList<Long>());
+//                guestReservations.get(reservation.getUser().getUsername()).add(reservation.getId());
+//            }
+//        return ResponseEntity.ok(guestReservations);
+//    }
+//
+//    @GetMapping("getActiveReservationsForUser")
+//    public ResponseEntity<?> getReservations(@RequestHeader("authorization") String authHeader, @PathParam("Id") Long Id){
+//        String jwt = authHeader.substring(7, authHeader.length());
+//        boolean isValidJWT = jwtUtils.validateJwtToken(jwt);
+//        Optional<User> user = userRepository.findByUsername(jwtUtils.getUserNameFromJwtToken(jwt));
+//        boolean isModerator = false;
+//        for (Role role : user.get().getRoles())
+//            if (role.getName() == ERole.ROLE_MODERATOR) {
+//                isModerator = true;
+//                break;
+//            }
+//        if (!isValidJWT || !isModerator) {
+//            return ResponseEntity.ok("You are not authorized to access Clerks area");
+//        }
+//        List<Reservation> allReservations = reservationRepository.findAll();
+//        List<Long> reservationsForUser = new ArrayList<>();
+//        Date current = new Date();
+//        System.out.println("UserId - " + Id);
+//        for (Reservation reservation : allReservations)
+//            if (reservation.getCheckout().compareTo(current) > 0 && reservation.getUser().getId() == Id)
+//                reservationsForUser.add(reservation.getId());
+//        return ResponseEntity.ok(reservationsForUser);
+//    }
 
 }

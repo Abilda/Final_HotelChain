@@ -34,6 +34,7 @@ public class SeasonController {
 
     @GetMapping("/getSeasons")
     public ResponseEntity<?> get() {
+//        System.out.print("Inside getSeasons");
         HashMap<String, Set<String>> season_hotels = new HashMap<>();
         List<Season> allSeasons = seasonRepository.findAll();
         for (Season season : allSeasons)

@@ -1,15 +1,10 @@
 package com.example.springAuthenticationJWT.Controllers;
 
-import com.example.springAuthenticationJWT.models.Hotel;
-import com.example.springAuthenticationJWT.models.Reservation;
-import com.example.springAuthenticationJWT.models.Room;
-import com.example.springAuthenticationJWT.models.User;
+import com.example.springAuthenticationJWT.models.*;
 import com.example.springAuthenticationJWT.payload.request.BookingRequest;
+import com.example.springAuthenticationJWT.payload.request.ReservationRequest;
 import com.example.springAuthenticationJWT.payload.response.MessageResponse;
-import com.example.springAuthenticationJWT.repository.HotelRepository;
-import com.example.springAuthenticationJWT.repository.ReservationRepository;
-import com.example.springAuthenticationJWT.repository.RoomRepository;
-import com.example.springAuthenticationJWT.repository.UserRepository;
+import com.example.springAuthenticationJWT.repository.*;
 import com.example.springAuthenticationJWT.security.jwt.JwtUtils;
 import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
-import java.util.LinkedHashMap;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -30,6 +24,8 @@ public class ReservationController {
     RoomRepository roomRepository;
     @Autowired
     ReservationRepository reservationRepository;
+    @Autowired
+    RoomTypeRepository roomTypeRepository;
     @Autowired
     HotelRepository hotelRepository;
     @Autowired
@@ -48,12 +44,99 @@ public class ReservationController {
         Optional<Room> room = roomRepository.findById(request.getRoomId());
         Reservation reservation = new Reservation(request.getFrom(), request.getTo());
         reservation.setHotel(hotel.get());
-        reservation.setRoom(room.get());
+        reservation.setRoomType(room.get().getRoomtype());
         reservation.setUser(user.get());
         reservationRepository.save(reservation);
 
         return ResponseEntity.ok(new MessageResponse("successfully booked"));
     }
+
+    @PostMapping("/reserve")
+    public ResponseEntity<?> reserve(@RequestHeader("Authorization") String authHeader,
+                                     @RequestBody ReservationRequest request) {
+        String jwt = authHeader.substring(7, authHeader.length());
+        Optional<User> user = userRepository.findByUsername(jwtUtils.getUserNameFromJwtToken(jwt));
+        Reservation reservation = new Reservation(request.getFrom(), request.getTo());
+        Optional<Hotel> hotel = hotelRepository.findById(request.getHotelId());
+        Optional<RoomType> roomType = roomTypeRepository.findById(request.getRoomTypeId());
+        reservation.setHotel(hotel.get());
+        reservation.setRoomType(roomType.get());
+        reservation.setUser(user.get());
+        reservationRepository.save(reservation);
+        return ResponseEntity.ok(new MessageResponse("successfully booked"));
+    }
+
+    @GetMapping("/availableRoomTypes")
+    public ResponseEntity<?> availableRoomTypes(@RequestBody ReservationRequest request) {
+        List<RoomType> availableRoomTypes = new ArrayList<>();
+        List<RoomType> allRoomTypes = roomTypeRepository.findAll();
+        for (RoomType roomType : allRoomTypes)
+            if (nrofAvailableRoomType(request.getFrom(), request.getTo(), roomType.getId()) > 0)
+                availableRoomTypes.add(roomType);
+        return ResponseEntity.ok(availableRoomTypes);
+    }
+
+    public Integer nrofAvailableRoomType(Date from, Date to, Long roomTypeId) {
+        Integer availableRooms = 0;
+        List<Room> allRooms = roomRepository.findAll();
+        for (Room room : allRooms)
+            if (room.getRoomtype().getId() == roomTypeId)
+                availableRooms++;
+        List<Reservation> reservations = reservationRepository.findAll();
+        for (Reservation reservation : reservations)
+            if (reservation.getRoomType().getId() == roomTypeId) {
+                boolean beginsInTheMiddleOfTheReservation = from.
+                        compareTo(reservation.getCheckin()) >= 0 &&
+                        reservation.getCheckout().compareTo(from) >= 0;
+                boolean endsInTheMiddleOfTheReservation = to.compareTo(
+                        reservation.getCheckin()) >= 0 && reservation.getCheckout().
+                        compareTo(to) >= 0;
+                boolean reservationInTheMiddle = reservation.getCheckin().compareTo(
+                        from) >= 0 && to.compareTo(
+                        reservation.getCheckout()) >= 0;
+                if (beginsInTheMiddleOfTheReservation || endsInTheMiddleOfTheReservation ||
+                        reservationInTheMiddle)
+                    availableRooms--;
+            }
+        return availableRooms;
+    }
+
+    @PostMapping("/editBooking")
+    public ResponseEntity<?> edit(@RequestHeader("authorization")String authHeader,
+                                  @RequestBody ReservationRequest request) {
+        String jwt = authHeader.substring(7, authHeader.length());
+        Optional<Reservation> reservation = reservationRepository.findById(request.getReservationId());
+        reservation.get().setCheckin(request.getFrom());
+        reservation.get().setCheckout(request.getTo());
+        reservationRepository.save(reservation.get());
+        return ResponseEntity.ok(new MessageResponse("succesfully edited"));
+    }
+
+//    @GetMapping("/nrOfAvailableRooms")
+//    public ResponseEntity<?> numberOfAvailableRooms(@RequestBody ReservationRequest request) {
+//        int availableRooms = 0;
+//        List<Room> allRooms = roomRepository.findAll();
+//        for (Room room : allRooms)
+//            if (room.getRoomtype().getId() == request.getRoomTypeId())
+//                availableRooms++;
+//        List<Reservation> reservations = reservationRepository.findAll();
+//        for (Reservation reservation : reservations)
+//            if (reservation.getRoomType().getId() == request.getRoomTypeId()) {
+//                boolean beginsInTheMiddleOfTheReservation = request.getFrom().
+//                        compareTo(reservation.getCheckin()) >= 0 &&
+//                        reservation.getCheckout().compareTo(request.getFrom()) >= 0;
+//                boolean endsInTheMiddleOfTheReservation = request.getTo().compareTo(
+//                        reservation.getCheckin()) >= 0 && reservation.getCheckout().
+//                        compareTo(request.getTo()) >= 0;
+//                boolean reservationInTheMiddle = reservation.getCheckin().compareTo(
+//                        request.getFrom()) >= 0 && request.getTo().compareTo(
+//                        reservation.getCheckout()) >= 0;
+//                if (beginsInTheMiddleOfTheReservation || endsInTheMiddleOfTheReservation ||
+//                    reservationInTheMiddle)
+//                    availableRooms--;
+//            }
+//        return ResponseEntity.ok(availableRooms);
+//    }
 
     @PostMapping("/delete")
     public ResponseEntity<?> delete(@RequestHeader("Authorization") String authHeader, @RequestBody Object obj) {
