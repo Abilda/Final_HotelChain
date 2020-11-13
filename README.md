@@ -4,12 +4,17 @@ The Project was developed by 5 very ambituous CS students of whom u will definet
 
 User Cases of the project:
 
-As a user, I want to access a home page that provides general information about the hotel chain, provides links to services offered by hotel web application, and give users the ability to log in
-As a guest, I want to query the system so that I can find available rooms (by date, destination, occupancy) and create a booking
-As a guest, I want to create a profile so that I can manage my past and upcoming bookings
-As a desk clerk, I want to cancel, create, and change, bookings so that I can fulfill guest requests
-As a manager, I want to review the schedules of all hotel employees so that I can make payroll and adjust hours
-As a manager, I want to create and cancel seasonal rates and issue advisories so that I can ensure that guests and employees have up-to-date information API documentation.
+1. As a user, I want to access a home page that provides general information about the hotel chain, provides links to services offered by hotel web application, and give users the ability to log in
+
+2. As a guest, I want to query the system so that I can find available rooms (by date, destination, occupancy) and create a booking
+
+3. As a guest, I want to create a profile so that I can manage my past and upcoming bookings
+
+4. As a desk clerk, I want to cancel, create, and change, bookings so that I can fulfill guest requests
+
+5. As a manager, I want to review the schedules of all hotel employees so that I can make payroll and adjust hours
+
+6. As a manager, I want to create and cancel seasonal rates and issue advisories so that I can ensure that guests and employees have up-to-date information API documentation.
 User Case 4:
 
 Firstly, the desk clerk has access to all the guests. The request to query them is a GET request: http://localhost:8080/api/clerkdesk/getAllGuests. The method does not take any parameters, and requires an authentication token of a user with Role "ROLE_MODERATOR". We decided to hard code such a user directly in the database, which means that the user in Role "ROLE_MODERATOR" should be created directly inside the database.
